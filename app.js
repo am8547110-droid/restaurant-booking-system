@@ -10,8 +10,6 @@ app.get('/', (req, res) => {
 
 app.get('/book', (req, res) => {
     const { name, time } = req.query;
-    // السطر ده هو اللي هيخلي المتصفح يفهم إن اللي جاي "صفحة ويب" مش "نص"
-    res.type('html'); 
     res.send(`
         <!DOCTYPE html>
         <html lang="ar" dir="rtl">
@@ -36,4 +34,4 @@ app.get('/book', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server is Ready!'));
+app.listen(PORT, () => console.log('Server Ready!'));
