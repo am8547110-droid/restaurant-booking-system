@@ -1,59 +1,66 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const app = express();
+const path = require('path');
 
-const dataFile = './appointments.json';
-let appointments = fs.existsSync(dataFile) ? JSON.parse(fs.readFileSync(dataFile)) : [];
+// إعداد السيرفر ليقرأ الملفات الثابتة
+app.use(express.static('public'));
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// الصفحة الرئيسية (عرض نموذج الحجز)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
+// معالجة طلب الحجز وعرض صفحة "تم الحجز بنجاح"
 app.get('/book', (req, res) => {
     const { name, time } = req.query;
-    if (name && time) {
-        appointments.push({ name, time, date: new Date().toLocaleString('ar-EG') });
-        fs.writeFileSync(dataFile, JSON.stringify(appointments, null, 2));
-    }
-    res.send('<h1 dir="rtl">تم الحجز!</h1><a href="/admin">روح شوف الجدول</a>');
-});
 
-// صفحة المدير مع زرار المسح
-app.get('/admin', (req, res) => {
-    let rows = appointments.map((a, index) => `
-        <tr style="border-bottom: 1px solid #ddd;">
-            <td style="padding:10px;">${a.name}</td>
-            <td style="padding:10px;">${a.time}</td>
-            <td style="padding:10px;">${a.date}</td>
-            <td style="padding:10px;"><a href="/delete?id=${index}" style="color:red; font-weight:bold; text-decoration:none;">❌ حذف</a></td>
-        </tr>`).join('');
-
+    // كود صفحة النجاح مع تصحيح زرار العودة
     res.send(`
-        <body dir="rtl" style="font-family:Arial; padding:40px; background:#f4f4f4;">
-            <div style="background:white; padding:20px; border-radius:10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                <h2 style="text-align:center;">📋 إدارة الحجوزات</h2>
-                <table style="width:100%; border-collapse:collapse; text-align:center;">
-                    <tr style="background:#333; color:white;">
-                        <th style="padding:10px;">الاسم</th>
-                        <th style="padding:10px;">الوقت</th>
-                        <th style="padding:10px;">التاريخ</th>
-                        <th style="padding:10px;">تحكم</th>
-                    </tr>
-                    ${rows.length > 0 ? rows : '<tr><td colspan="4">مفيش حجوزات يا ريس</td></tr>'}
-                </table>
-                <br><a href="/" style="display:block; text-align:center;">إضافة حجز جديد</a>
-            </div>
-        </body>
-    `);
-});
-
-// كود المسح الفعلي
-app.get('/delete', (req, res) => {
-    const id = req.query.id;
-    if (id !== undefined) {
-        appointments.splice(id, 1); // شيل الحجز من القائمة
-        fs.writeFileSync(dataFile, JSON.stringify(appointments, null, 2)); // حدث الملف
-    }
-    res.redirect('/admin'); // ارجع للجدول هتلاقيه اتمسح
-});
-
-app.listen(3000, () => console.log('🚀 السيرفر شغال وزرار المسح جاهز!'));
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>تم تأكيد حجزك</title>
+            <style>
+                body { 
+                    background: #1a1a1a; 
+                    color: white; 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    height: 100vh; 
+                    margin: 0; 
+                    text-align: center;
+                }
+                .success-card {
+                    padding: 50px;
+                    border: 1px solid rgba(212, 163, 115, 0.5);
+                    border-radius: 20px;
+                    background: rgba(255, 255, 255, 0.05);
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                    max-width: 400px;
+                }
+                h1 { color: #d4a373; margin-bottom: 20px; }
+                p { font-size: 1.2rem; line-height: 1.6; }
+                b { color: #d4a373; }
+                .btn {
+                    display: inline-block;
+                    margin-top: 30px;
+                    padding: 10px 25px;
+                    background: #d4a373;
+                    color: #1a1a1a;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    transition: 0.3s;
+                    cursor: pointer;
+                }
+                .btn:hover { background: #faedcd; }
+            </style>
+        </head>
+        <body>
+            <div class="success-card">
+                <h1>
