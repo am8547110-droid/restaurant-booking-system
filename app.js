@@ -2,65 +2,36 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// إعداد السيرفر ليقرأ الملفات الثابتة
 app.use(express.static('public'));
 
-// الصفحة الرئيسية (عرض نموذج الحجز)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// معالجة طلب الحجز وعرض صفحة "تم الحجز بنجاح"
 app.get('/book', (req, res) => {
     const { name, time } = req.query;
-
-    // كود صفحة النجاح مع تصحيح زرار العودة
     res.send(`
         <!DOCTYPE html>
         <html lang="ar" dir="rtl">
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>تم تأكيد حجزك</title>
             <style>
-                body { 
-                    background: #1a1a1a; 
-                    color: white; 
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                    display: flex; 
-                    justify-content: center; 
-                    align-items: center; 
-                    height: 100vh; 
-                    margin: 0; 
-                    text-align: center;
-                }
-                .success-card {
-                    padding: 50px;
-                    border: 1px solid rgba(212, 163, 115, 0.5);
-                    border-radius: 20px;
-                    background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(10px);
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                    max-width: 400px;
-                }
-                h1 { color: #d4a373; margin-bottom: 20px; }
-                p { font-size: 1.2rem; line-height: 1.6; }
-                b { color: #d4a373; }
-                .btn {
-                    display: inline-block;
-                    margin-top: 30px;
-                    padding: 10px 25px;
-                    background: #d4a373;
-                    color: #1a1a1a;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    transition: 0.3s;
-                    cursor: pointer;
-                }
-                .btn:hover { background: #faedcd; }
+                body { background: #1a1a1a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+                .card { padding: 40px; border: 1px solid #d4a373; border-radius: 20px; background: rgba(255,255,255,0.05); text-align: center; }
+                h1 { color: #d4a373; }
+                .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #d4a373; color: #1a1a1a; text-decoration: none; border-radius: 5px; font-weight: bold; }
             </style>
         </head>
         <body>
-            <div class="success-card">
-                <h1>
+            <div class="card">
+                <h1>✅ تم الحجز بنجاح</h1>
+                <p>منور يا ${name}، ميعادنا الساعة ${time}</p>
+                <a href="/" class="btn">حجز آخر</a>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('Server is running!'));
