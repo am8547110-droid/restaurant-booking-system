@@ -1,76 +1,78 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مطعم الفخامة | حجز طاولات</title>
-    <style>
-        :root {
-            --primary-color: #d4a373;
-            --dark-color: #1a1a1a;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                        url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            color: white;
-        }
-        .booking-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        h2 { color: var(--primary-color); margin-bottom: 30px; }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: none;
-            background: rgba(255,255,255,0.9);
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            border: none;
-            background: var(--primary-color);
-            color: var(--dark-color);
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #faedcd;
-            transform: translateY(-3px);
-        }
-    </style>
-</head>
-<body>
-    <div class="booking-card">
-        <h2>🍽️ حجز طاولة جديدة</h2>
-        <form action="/book" method="GET">
-            <input type="text" name="name" placeholder="اسمك الكريم" required>
-            <input type="text" name="time" placeholder="الساعة (مثلاً 8:00 مساءً)" required>
-            <button type="submit">تأكيد الحجز الآن</button>
-        </form>
-    </div>
-</body>
-</html>
+const express = require('express');
+const app = express();
+const path = require('path');
+
+// إعداد السيرفر ليقرأ الملفات الثابتة (مثل الصور إذا أضفتها مستقبلاً)
+app.use(express.static('public'));
+
+// الصفحة الرئيسية (عرض نموذج الحجز)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// معالجة طلب الحجز وعرض صفحة "تم الحجز بنجاح"
+app.get('/book', (req, res) => {
+    const { name, time } = req.query;
+
+    // كود صفحة النجاح بتصميم متناسق مع الصفحة الرئيسية
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>تم تأكيد حجزك</title>
+            <style>
+                body { 
+                    background: #1a1a1a; 
+                    color: white; 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    height: 100vh; 
+                    margin: 0; 
+                    text-align: center;
+                }
+                .success-card {
+                    padding: 50px;
+                    border: 1px solid rgba(212, 163, 115, 0.5);
+                    border-radius: 20px;
+                    background: rgba(255, 255, 255, 0.05);
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                }
+                h1 { color: #d4a373; margin-bottom: 20px; }
+                p { font-size: 1.2rem; line-height: 1.6; }
+                b { color: #d4a373; }
+                .btn {
+                    display: inline-block;
+                    margin-top: 30px;
+                    padding: 10px 25px;
+                    background: #d4a373;
+                    color: #1a1a1a;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    transition: 0.3s;
+                }
+                .btn:hover { background: #faedcd; }
+            </style>
+        </head>
+        <body>
+            <div class="success-card">
+                <h1>✅ تم الحجز بنجاح!</h1>
+                <p>أهلاً بك يا <b>${name}</b>.</p>
+                <p>لقد قمنا بتجهيز طاولتك في تمام الساعة <b>${time}</b>.</p>
+                <a href="/" class="btn">حجز آخر</a>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+// تشغيل السيرفر
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log('!السيرفر شغال وزي الفل جاهز');
+});
